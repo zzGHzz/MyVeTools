@@ -1,0 +1,25 @@
+{
+  "name": "myvetools",
+  "version": "1.0.0",
+  "description": "Tools for interacting with VeChainThor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzGHzz/MyVeTools.git"
+  },
+  "author": "Ziheng (Peter)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zzGHzz/MyVeTools/issues"
+  },
+  "homepage": "https://github.com/zzGHzz/MyVeTools#readme",
+  "dependencies": {
+    "@vechain/connex-framework": "^1.1.1",
+    "@vechain/connex.driver-nodejs": "^1.2.0-beta3",
+    "thor-devkit": "^1.2.2",
+    "ts-node": "^8.5.0"
+  }
+}
