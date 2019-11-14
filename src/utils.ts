@@ -1,9 +1,8 @@
-// import { isHex, BN } from "web3-utils";
 const BN = require('bn.js');
 const { spawnSync } = require('child_process');
 
 function exec(cmd: string, ...params: string[]): string {
-    const c = spawnSync('solc', params);
+    const c = spawnSync(cmd, params);
     const stderr: string = c.stderr.toString();
     const stdout: string = c.stdout.toString();
 
@@ -126,7 +125,7 @@ function isByte32(data: string): boolean {
     return isHex(data) && data.length == 66;
 }
 
-function LPadHex(h: string, hexLen: number): string {
+function lPadHex(h: string, hexLen: number): string {
     if (!isHex(h)) throw new Error('Invalid hex string!');
     const _h = h.slice(2);
 
@@ -163,7 +162,7 @@ export {
     numToHexStr,
     BNToExpString,
     strToHexStr,
-    LPadHex,
+    lPadHex,
     isAddress, isAddresses,
     isByte32, isHex,
     getABI,

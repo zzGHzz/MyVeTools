@@ -1,6 +1,3 @@
-/// <reference types="@vechain/connex" />
-/// <reference types="thor-devkit/dist/abi"/>
-
 import { strToHexStr, getABI } from "./utils";
 
 // Built-in contract addresses
