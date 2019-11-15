@@ -1,11 +1,9 @@
 {
   "name": "myvetools",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tools for interacting with VeChainThor",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzGHzz/MyVeTools.git"
@@ -20,6 +18,6 @@
     "@vechain/connex-framework": "^1.1.1",
     "@vechain/connex.driver-nodejs": "^1.2.0-beta3",
     "thor-devkit": "^1.2.2",
-    "ts-node": "^8.5.0"
+    "typescript": "^3.7.2"
   }
 }

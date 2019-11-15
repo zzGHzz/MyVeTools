@@ -12,7 +12,7 @@ function exec(cmd: string, ...params: string[]): string {
 
 function getSolcABI(file: string, contractName: string): string {
     let o = exec('solc', '--abi', file);
-    
+
     let p = o.search(file + ':' + contractName);
     if (p == -1) throw new Error('Contract not found!');
     o = o.slice(p);
@@ -38,7 +38,7 @@ function getSolcBin(file: string, contractName: string): string {
     let p = o.search(file + ':' + contractName);
     if (p == -1) throw new Error('Contract not found!');
     o = o.slice(p);
-    
+
     let str = 'Binary:';
     p = o.search(str);
     if (p == -1) throw new Error('solc output format err');
@@ -49,6 +49,7 @@ function getSolcBin(file: string, contractName: string): string {
     if (p != -1) { o = o.slice(0, p); }
 
     const bin = o.match(/[0-9a-f]+/i);
+    if (!bin) { throw new Error('Binary code not found!'); }
 
     return '0x' + bin[0];
 }
@@ -64,7 +65,7 @@ function getSolcBinRuntime(file: string): string {
     o = o.slice(p + str.length);
 
     const bin = o.match(/[0-9a-f]+/i);
-    if (!p) { throw new Error('solc output format err'); }
+    if (!bin) { throw new Error('Binary code not found!'); }
 
     return '0x' + bin[0];
 }
@@ -118,7 +119,7 @@ function isAddresses(...addrs: string[]): [boolean, number] {
         const addr = addrs[i];
         if (!isAddress(addr)) { return [false, i]; }
     }
-    return [true, null];
+    return [true, -1];
 }
 
 function isByte32(data: string): boolean {
@@ -142,20 +143,23 @@ function lPadHex(h: string, hexLen: number): string {
  * @param name      - function/event name
  * @param type      - 'function' | 'event' | 'constructor'
  */
-function getABI(abi: object[], name: string, type: 'function' | 'event' | 'constructor'): object {
-    const lname: string = name.toLowerCase();
+function getABI(abi: object[], _name: string, _type: 'function' | 'event' | 'constructor'): object {
+    const lname: string = _name.toLowerCase();
     for (let fabi of abi) {
-        const _name: string = fabi['name'];
-        const _type: string = fabi['type'];
+        const keys = Object.keys(fabi);
+        const vals = Object.values(fabi);
 
-        if (type === 'function' || type === 'event') {
-            if (type === _type && _name.toLowerCase() === lname) { return fabi; }
+        const name: string = vals[keys.indexOf('name', 0)];
+        const type: string = vals[keys.indexOf('type', 0)];
+
+        if (_type === 'function' || _type === 'event') {
+            if (_type === type && name.toLowerCase() === lname) { return fabi; }
         }
 
-        if (type === 'constructor' && _type === 'constructor') { return fabi; }
+        if (_type === 'constructor' && type === 'constructor') { return fabi; }
     }
 
-    return null;
+    return {};
 }
 
 export {

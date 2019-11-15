@@ -2,7 +2,6 @@
 
 import { abi as ABI } from 'thor-devkit';
 import { isByte32, isHex } from './utils';
-// import { to } from 'await-to-js';
 
 /**
  * Decode EVENT data (output by RECEIPT)
@@ -10,12 +9,15 @@ import { isByte32, isHex } from './utils';
  * @param output
  * @param abiObj 
  */
-function decodeEvent(output: Connex.Thor.Event, abiObj: object): ABI.Decoded {
-    const event = new ABI.Event({
+function decodeEvent(output: Connex.Thor.Event, abi: object): ABI.Decoded {
+    const keys = Object.keys(abi);
+    const vals = Object.values(abi);
+
+    let event = new ABI.Event({
         type: "event",
-        name: abiObj["name"],
-        anonymous: abiObj["anonymous"],
-        inputs: abiObj["inputs"]
+        name: vals[keys.indexOf('name', 0)],
+        anonymous: vals[keys.indexOf('anonymous', 0)],
+        inputs: vals[keys.indexOf('inputs', 0)]
     });
 
     return event.decode(output.data, output.topics);
@@ -28,13 +30,16 @@ function decodeEvent(output: Connex.Thor.Event, abiObj: object): ABI.Decoded {
  * @param params 
  */
 function encodeABI(abi: object, ...params: any[]): string {
+    const keys = Object.keys(abi);
+    const vals = Object.values(abi);
+
     const fn = new ABI.Function({
-        constant: abi["constant"] ? abi["constant"] : null,
-        inputs: abi["inputs"],
-        outputs: abi["outputs"],
-        name: abi["name"] ? abi["name"] : null,
-        payable: abi["payable"],
-        stateMutability: abi["stateMutability"],
+        constant: keys.indexOf('constant', 0) >= 0 ? vals[keys.indexOf('constant', 0)] : null,
+        inputs: vals[keys.indexOf('inputs', 0)],
+        outputs: vals[keys.indexOf('outputs', 0)],
+        name: keys.indexOf('name', 0) >= 0 ? vals[keys.indexOf('name', 0)] : null,
+        payable: vals[keys.indexOf('payable', 0)],
+        stateMutability: vals[keys.indexOf('stateMutability', 0)],
         type: "function"
     });
     return fn.encode(...params);
@@ -140,5 +145,4 @@ export {
     deployContract,
     contractCallWithTx,
     contractCall
-    // getCallResult
 }
