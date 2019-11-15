@@ -36,17 +36,17 @@ function getSolcBin(file: string, contractName: string): string {
     let o = exec('solc', '--bin', file);
 
     let p = o.search(file + ':' + contractName);
-    if (p == -1) throw new Error('Contract not found!');
+    if (p < 0) throw new Error('Contract not found!');
     o = o.slice(p);
 
     let str = 'Binary:';
     p = o.search(str);
-    if (p == -1) throw new Error('solc output format err');
+    if (p < 0) throw new Error('solc output format err');
     o = o.slice(p + str.length);
 
     str = '======='
     p = o.search(str);
-    if (p != -1) { o = o.slice(0, p); }
+    if (p >= 0) { o = o.slice(0, p); }
 
     const bin = o.match(/[0-9a-f]+/i);
     if (!bin) { throw new Error('Binary code not found!'); }
@@ -57,11 +57,11 @@ function getSolcBin(file: string, contractName: string): string {
 function getSolcBinRuntime(file: string): string {
     let o = exec('solc', '--bin-runtime', file);
     let p = o.search(file);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p < 0) { throw new Error('solc output format err'); }
     o = o.slice(p);
     const str = 'Binary of the runtime part:';
     p = o.search(str);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p < 0) { throw new Error('solc output format err'); }
     o = o.slice(p + str.length);
 
     const bin = o.match(/[0-9a-f]+/i);
