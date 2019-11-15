@@ -1,6 +1,6 @@
 {
   "name": "myvetools",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Tools for interacting with VeChainThor",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,5 +19,8 @@
     "@vechain/connex.driver-nodejs": "^1.2.0-beta3",
     "thor-devkit": "^1.2.2",
     "typescript": "^3.7.2"
-  }
+  },
+  "files": [
+    "dist/*.*"
+  ]
 }
