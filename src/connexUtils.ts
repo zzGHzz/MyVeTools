@@ -1,13 +1,13 @@
 /// <reference types="@vechain/connex" />
 
 import { abi as ABI } from 'thor-devkit';
-import { isByte32, isHex } from './utils';
+import { isAddress, isByte32, isHex } from './utils';
 
 /**
- * Decode EVENT data (output by RECEIPT)
+ * Decode event data included in transaction receipt.
  * 
- * @param output
- * @param abiObj 
+ * @param output - event data
+ * @param abi - event ABI 
  */
 function decodeEvent(output: Connex.Thor.Event, abi: object): ABI.Decoded {
     const keys = Object.keys(abi);
@@ -24,10 +24,10 @@ function decodeEvent(output: Connex.Thor.Event, abi: object): ABI.Decoded {
 }
 
 /**
- * Encode ABI 
+ * Encode contract function parameters
  * 
- * @param abiObj 
- * @param params 
+ * @param abi - function ABI
+ * @param params - function parameters
  */
 function encodeABI(abi: object, ...params: any[]): string {
     const keys = Object.keys(abi);
@@ -48,9 +48,9 @@ function encodeABI(abi: object, ...params: any[]): string {
 /**
  * Get transaction receipt
  * 
- * @param connex
- * @param timeout - counted in block 
- * @param txid 
+ * @param connex - Connex instance
+ * @param timeout - timeout counted in blocks 
+ * @param txid - transaction ID
  */
 async function getReceipt(
     connex: Connex, timeout: number, txid: string
@@ -69,12 +69,33 @@ async function getReceipt(
     throw new Error("Time out!");
 }
 
+/**
+ * Deploy a smart contract
+ * 
+ * @param connex - Connex instance
+ * @param signer - contract deployer (address)
+ * @param gas - max allowed gas (int)
+ * @param value - value within range [0, MAX_SAFE_INTEGER]
+ * @param bytecode - contract binary code (hex string)
+ * @param abi - object array that contains contract ABIs
+ * @param params - parameters of constructor if any
+ */
 async function deployContract(
     connex: Connex, signer: string, gas: number,
     value: number | string, bytecode: string,
     abi?: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
     if (!connex) { throw new Error("Empty connex!"); }
+    if (!isAddress(signer)) { throw new Error("Invalid signer!"); }
+    if (typeof value === 'string') {
+        if (!isHex(value)) { throw new Error("Invalid value hex string!"); }
+    } else {
+        value = value > 0 ? value : 0;
+        value = value <= Number.MAX_SAFE_INTEGER ? Math.floor(value) : Number.MAX_SAFE_INTEGER;
+    }
+    if (gas < 32000) { throw new Error("Insufficient gas!"); }
+    gas = gas < Number.MAX_SAFE_INTEGER ? Math.floor(gas) : Number.MAX_SAFE_INTEGER;
+    if (!isHex(bytecode)) { throw new Error("Invalid bytecode hex string!"); }
 
     let data = bytecode;
     if (abi) {
@@ -85,21 +106,21 @@ async function deployContract(
     signingService.signer(signer).gas(gas);
     return signingService.request([{
         to: null,
-        value: typeof (value) === 'string' ? value : Math.floor(value),
+        value: value,
         data: data
     }]);
 }
 
 /**
- * Call contract function through transaction
+ * Invoke contract function via transaction
  * 
- * @param connex 
- * @param signer 
- * @param gas 
- * @param contractAddr 
- * @param value 
- * @param abi 
- * @param params 
+ * @param connex - Connex instance
+ * @param signer - transaction sender
+ * @param gas - max gas allowed
+ * @param contractAddr - target contract address
+ * @param value - value within range [0, MAX_SAFE_INTEGER]
+ * @param abi - contract function ABI
+ * @param params - contract function parameters
  */
 function contractCallWithTx(
     connex: Connex, signer: string, gas: number,
@@ -107,8 +128,17 @@ function contractCallWithTx(
     abi: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
     if (!connex) { throw new Error("Empty connex!"); }
-    if (!abi) { throw new Error("Empty ABI!") }
-    if (typeof value === 'string' && !isHex(value)) { throw new Error("Invalid value!"); }
+    if (!isAddress(signer)) { throw new Error("Invalid signer!"); }
+    if (!isAddress(contractAddr)) { throw new Error("Invalid contract address!"); }
+    if (typeof value === 'string') {
+        if (!isHex(value)) { throw new Error("Invalid value hex string!"); }
+    } else {
+        value = value > 0 ? value : 0;
+        value = value <= Number.MAX_SAFE_INTEGER ? Math.floor(value) : Number.MAX_SAFE_INTEGER;
+    }
+    if (gas < 21000) { throw new Error("Insufficient gas!"); }
+    gas = gas < Number.MAX_SAFE_INTEGER ? Math.floor(gas) : Number.MAX_SAFE_INTEGER;
+    if (Object.entries(abi).length == 0) { throw new Error("Empty ABI!"); }
 
     const signingService = connex.vendor.sign('tx');
     signingService.signer(signer).gas(Math.floor(gas));
@@ -121,12 +151,12 @@ function contractCallWithTx(
 }
 
 /**
- * Call view/pure contract function
+ * Invoke contract (view or pure) function locally
  * 
- * @param connex 
- * @param contractAddr 
- * @param abi 
- * @param params 
+ * @param connex - Connex instance
+ * @param contractAddr - target contract address`
+ * @param abi - function ABI
+ * @param params - function parameters
  */
 function contractCall(
     connex: Connex,
@@ -134,7 +164,8 @@ function contractCall(
     abi: object, ...params: any[]
 ): Promise<Connex.Thor.VMOutput> {
     if (!connex) { throw new Error("Empty connex!"); }
-    if (!abi) { throw new Error("Empty ABI!") }
+    if (!isHex(contractAddr)) { throw new Error("Invalid contract address!") }
+    if (Object.entries(abi).length == 0) { throw new Error("Empty ABI!") }
     return connex.thor.account(contractAddr).method(abi).call(...params);
 }
 

@@ -23,7 +23,7 @@ const prototypeABI = JSON.parse('[{"constant":false,"inputs":[{"name":"_self","t
  * 
  * @param contract  - contract name
  * @param name      - function/event name
- * @param type      - 'function' or 'event'
+ * @param type      - ('function' | 'event')
  */
 function getBuiltinABI(contract: string, name: string, type: 'function' | 'event'): object {
     let abi: object[] = [];
