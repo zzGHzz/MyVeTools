@@ -33,7 +33,7 @@ function getSolcABI(file: string, contractName: string): string {
     let str = 'Contract JSON ABI';
     p = o.search(str);
     if (p == -1) { throw new Error('solc output format err'); }
-    o = o.slice(p + str.length + 2);
+    o = o.slice(p + str.length);
 
     str = '======='
     p = o.search(str);
