@@ -1,5 +1,5 @@
 const BN = require('bn.js');
-const { spawnSync } = require('child_process');
+const childProcess = require('child_process');
 
 /**
  * Execute external program
@@ -8,11 +8,14 @@ const { spawnSync } = require('child_process');
  * @param params - parameters 
  */
 function exec(cmd: string, ...params: string[]): string {
-    const c = spawnSync(cmd, params);
-    const stderr: string = c.stderr.toString();
-    const stdout: string = c.stdout.toString();
+    const c = childProcess.spawnSync(cmd, params);
 
+    let stderr, stdout: string;
+
+    if (typeof c.strerr != 'undefined') { stderr = c.stderr.toString(); }
     if (stderr) { throw new Error(stderr); }
+
+    stdout = c.stdout.toString(); 
     return stdout;
 }
 
@@ -38,9 +41,6 @@ function getSolcABI(file: string, contractName: string): string {
     str = '======='
     p = o.search(str);
     if (p != -1) { o = o.slice(0, p); }
-
-    o.replace(/^[^\[]*\[/, '[');
-    o.replace(/\][^\]]*$/, ']');
 
     return o;
 }

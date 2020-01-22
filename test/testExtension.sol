@@ -18,3 +18,10 @@ contract TestExtension {
 
     event TxID(bytes32 indexed txID);
 }
+
+contract SecondContract {
+    uint a;
+    constructor(uint _a) public {
+        a = _a;
+    }
+}

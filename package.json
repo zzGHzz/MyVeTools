@@ -17,8 +17,7 @@
   "dependencies": {
     "@vechain/connex-framework": "^1.1.1",
     "@vechain/connex.driver-nodejs": "^1.2.0-beta3",
-    "thor-devkit": "^1.2.2",
-    "typescript": "^3.7.2"
+    "thor-devkit": "^1.2.2"
   },
   "files": [
     "dist/*.*"
