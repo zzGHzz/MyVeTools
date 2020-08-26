@@ -15,9 +15,8 @@
   },
   "homepage": "https://github.com/zzGHzz/MyVeTools#readme",
   "dependencies": {
-    "@vechain/connex-framework": "^1.1.1",
-    "@vechain/connex.driver-nodejs": "^1.2.0-beta3",
-    "thor-devkit": "^1.2.2"
+    "@vechain/connex": "^1.4.2",
+    "thor-devkit": "^1.3.0"
   },
   "files": [
     "dist/*.*"
