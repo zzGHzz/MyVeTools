@@ -1,6 +1,6 @@
 {
   "name": "myvetools",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Tools for interacting with VeChainThor",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
