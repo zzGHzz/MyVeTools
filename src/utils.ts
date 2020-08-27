@@ -20,8 +20,8 @@ function exec(cmd: string, ...params: string[]): string {
 }
 
 /**
- * Envoke local solidity compiler `solc` to get ABI of a contract. 
- * Compilier version needs to be compatible with the source file.
+ * Invoke local solidity compiler `solc` to get ABI of a contract. 
+ * Compiler version needs to be compatible with the source file.
  * 
  * @param file - solidity source file
  * @param contractName - target contract name
@@ -46,8 +46,8 @@ function getSolcABI(file: string, contractName: string): string {
 }
 
 /**
- * Envoke local solidity compiler `solc` to get binary code of a contract. 
- * Compilier version needs to be compatible with the source file.
+ * Invoke local solidity compiler `solc` to get binary code of a contract. 
+ * Compiler version needs to be compatible with the source file.
  * 
  * @param file - solidity source file 
  * @param contractName - target contract name
@@ -75,8 +75,8 @@ function getSolcBin(file: string, contractName: string): string {
 }
 
 /**
- * Envoke local solidity compiler `solc` to get runtime binary code of a contract. 
- * Compilier version needs to be compatible with the source file.
+ * Invoke local solidity compiler `solc` to get runtime binary code of a contract. 
+ * Compiler version needs to be compatible with the source file.
  * 
  * @param file - solidity source file 
  * @param contractName - target contract name
