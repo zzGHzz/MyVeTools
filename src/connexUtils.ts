@@ -63,7 +63,7 @@ async function getReceipt(
     for (let i = 0; i < n; i++) {
         const receipt = await connex.thor.transaction(txid).getReceipt();
         if (!receipt) { await ticker.next(); continue; }
-        if (receipt.reverted) throw "TX Reverted! - txid: " + txid;
+        // if (receipt.reverted) throw "TX Reverted! - txid: " + txid;
         return receipt;
     }
     throw new Error("Time out!");
