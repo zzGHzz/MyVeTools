@@ -1,6 +1,6 @@
 import * as path from 'path'
 import * as fs from 'fs'
-import * as BN from 'bn.js'
+import { BN } from 'bn.js'
 import * as solc from '@pzzh/solc'
 
 /**
