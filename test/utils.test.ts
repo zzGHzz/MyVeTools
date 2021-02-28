@@ -3,7 +3,7 @@ import * as path from 'path'
 
 import { compileContract, getABI } from '../src/utils'
 
-const filePath = path.resolve(process.cwd(), './test/B.sol')
+const filePath = path.resolve(process.cwd(), './test/contracts/B.sol')
 
 describe('test utils', function () {
 	describe('compileContract', function () {
@@ -23,7 +23,7 @@ describe('test utils', function () {
 			expect(actual).to.eql('0x' + expected['contracts'][file][contractName]['evm']['deployedBytecode']['object'])
 		})
 		it('error in contract', function () {
-			const wrapper = () => { compileContract(path.resolve(process.cwd(), './test/C.sol')) }
+			const wrapper = () => { compileContract(path.resolve(process.cwd(), './test/contracts/C.sol')) }
 			expect(wrapper).to.throw(TypeError, 'Error: Expected \';\' but got end of source')
 		})
 		it('file not found', function () {
