@@ -8,17 +8,32 @@
     "type": "git",
     "url": "https://github.com/zzGHzz/MyVeTools.git"
   },
-  "author": "Ziheng (Peter) Zhou",
+  "author": "Peter Zhou",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/zzGHzz/MyVeTools/issues"
   },
   "homepage": "https://github.com/zzGHzz/MyVeTools#readme",
   "dependencies": {
-    "@vechain/connex": "^1.4.2",
-    "thor-devkit": "^1.3.3"
+    "@pzzh/solc": "^1.1.2",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.2.0",
+    "@vechain/connex": "^2.0.0",
+    "solc": "^0.8.1",
+    "thor-devkit": "^2.0.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.4"
   },
   "files": [
     "dist/*.*"
-  ]
+  ],
+  "scripts": {
+    "test": "mocha -r ts-node/register test/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "bn.js": "^4.11.9",
+    "chai": "^4.3.0",
+    "mocha": "^8.2.1"
+  }
 }
