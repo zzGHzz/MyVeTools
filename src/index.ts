@@ -1,5 +1,3 @@
-import * as utils from './utils';
-import * as builtin from './builtin';
-import * as connexutils from './connexUtils';
-
-export { utils, builtin, connexutils }
+export * as utils from './utils';
+export * as builtin from './builtin';
+export * as connexutils from './connexUtils';
