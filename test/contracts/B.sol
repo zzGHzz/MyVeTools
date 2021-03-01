@@ -8,12 +8,16 @@ contract B {
 	event SetB(uint _a);
 
 	constructor(uint _a) {
-		a = A(_a);
+		a = new A(_a);
 	}
 	
 	function set(uint _a) public {
 		a.set(_a);
 		emit SetB(_a);
+	}
+
+	function get() public view returns (uint) {
+		return a.a();
 	}
 }
 
