@@ -42,7 +42,7 @@ describe('test utils', function () {
 			expect(actual).not.eql({})
 		})
 		it('non-existing function', function() {
-			const actual = getABI(abiB, 'get', 'function')
+			const actual = getABI(abiB, 'NONE', 'function')
 			expect(actual).to.eql({})
 		})
 		it('event', function() {
