@@ -27,7 +27,7 @@
     "dist/*.*"
   ],
   "scripts": {
-    "test": "mocha -r ts-node/register test/*.test.ts"
+    "test": "mocha --no-timeouts --colors -r ts-node/register test/*.test.ts"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",
