@@ -5,7 +5,7 @@ describe('Test builtin', function () {
 	describe('getBuiltinABI', function() {
 		it('get extention.txID', function () {
 			const actual = getBuiltinABI('extension', 'txID', 'function')
-			const expected = {"constant":true,"inputs":[],"name":"txID","actualputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"}
+			const expected = {"constant":true,"inputs":[],"name":"txID","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"}
 			expect(actual).to.eql(expected)
 		})
 		it('no-existing builtin contract name', function() {
