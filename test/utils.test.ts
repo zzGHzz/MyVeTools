@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import * as path from 'path'
 
-import { compileContract, getABI } from '../src/utils'
+import { checkValue, compileContract, getABI } from '../src/utils'
 
 const filePath = path.resolve(process.cwd(), './test/contracts/B.sol')
 
@@ -35,27 +35,45 @@ describe('test utils', function () {
 			expect(wrapper).to.throw(TypeError, 'Contract NONE not found')
 		})
 	})
-	describe('getABI', function() {
+	describe('getABI', function () {
 		const abiB = JSON.parse(compileContract(filePath, 'B', 'abi'))
-		it('function', function() {
+		it('function', function () {
 			const actual = getABI(abiB, 'set', 'function')
 			expect(actual).not.eql({})
 		})
-		it('non-existing function', function() {
+		it('non-existing function', function () {
 			const actual = getABI(abiB, 'NONE', 'function')
 			expect(actual).to.eql({})
 		})
-		it('event', function() {
+		it('event', function () {
 			const actual = getABI(abiB, 'setb', 'event')
 			expect(actual).not.eql({})
 		})
-		it('non-existing event', function() {
+		it('non-existing event', function () {
 			const actual = getABI(abiB, 'seta', 'event')
 			expect(actual).to.eql({})
 		})
-		it('constructor', function() {
+		it('constructor', function () {
 			const actual = getABI(abiB, '', 'constructor')
 			expect(actual).not.eql({})
+		})
+	})
+	describe('checkValue', function () {
+		it('negative value', function () {
+			const actual = checkValue(-1)
+			expect(actual).to.eql('Number value out of range')
+		})
+		it('larger than max safe number value', function () {
+			const actual = checkValue(Number.MAX_SAFE_INTEGER + 1)
+			expect(actual).to.eql('Number value out of range')
+		})
+		it('not hex string', function () {
+			const actual = checkValue('0x3fw123')
+			expect(actual).to.eql('Invalid hex string')
+		})
+		it('hex string longer than 66', function () {
+			const actual = checkValue('0x' + '0'.repeat(66) + '1')
+			expect(actual).to.eql('Invalid hex string')
 		})
 	})
 })

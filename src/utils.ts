@@ -331,6 +331,17 @@ function getABI(abi: object[], _name: string, _type: 'function' | 'event' | 'con
 	return {}
 }
 
+/**
+ * Check the validity of the value input for constructing a clause.
+ * @param value an integer value that can be either a hex string starting with 0x or a number
+ */
+function checkValue(value: string | number): string {
+	if (typeof value === 'string') {
+		if (!isHex(value) || value.length > 66 || value.length < 3) { return 'Invalid hex string' }
+	} else if (value < 0 || value > Number.MAX_SAFE_INTEGER) { return 'Number value out of range' }
+	return ''
+}
+
 export {
 	numToHexStr,
 	BNToExpString,
@@ -340,5 +351,6 @@ export {
 	isByte32, isHex,
 	getABI,
 	exec, getSolcBin, getSolcBinRuntime, getSolcABI,
-	compileContract
+	compileContract,
+	checkValue
 }
