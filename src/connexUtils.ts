@@ -1,26 +1,7 @@
 /// <reference types="@vechain/connex" />
-
-import { abi as ABI } from 'thor-devkit';
-import { isAddress, isByte32, isHex } from './utils';
-
-// function decodeEventFromReceipt(
-// 	receipt: Connex.Thor.Transaction.Receipt, ...abi: object[]
-// ): ABI.Decoded[] {
-// 	const ret: ABI.Decoded[] = []
-
-// 	if (receipt.outputs.length === 0) {
-// 		return []
-// 	}
-
-// 	receipt.outputs[0].events.forEach((event, i) => {
-// 		if (typeof abi[i] === 'undefined') {
-// 			throw new TypeError('abi not found')
-// 		}
-// 		ret.push(decodeEvent(event, abi[i]))
-// 	})
-
-// 	return ret
-// }
+import { abi as ABI } from 'thor-devkit'
+import { isAddress, isByte32, isHex, checkValue } from './utils'
+import * as errs from './errs'
 
 /**
  * Decode event data included in transaction receipt.
@@ -29,17 +10,17 @@ import { isAddress, isByte32, isHex } from './utils';
  * @param abi - event ABI 
  */
 function decodeEvent(output: Connex.VM.Event, abi: object): ABI.Decoded {
-	const keys = Object.keys(abi);
-	const vals = Object.values(abi);
+	const keys = Object.keys(abi)
+	const vals = Object.values(abi)
 
 	let event = new ABI.Event({
 		type: "event",
 		name: vals[keys.indexOf('name', 0)],
 		anonymous: vals[keys.indexOf('anonymous', 0)],
 		inputs: vals[keys.indexOf('inputs', 0)]
-	});
+	})
 
-	return event.decode(output.data, output.topics);
+	return event.decode(output.data, output.topics)
 }
 
 /**
@@ -49,8 +30,8 @@ function decodeEvent(output: Connex.VM.Event, abi: object): ABI.Decoded {
  * @param params - function parameters
  */
 function encodeABI(abi: object, ...params: any[]): string {
-	const keys = Object.keys(abi);
-	const vals = Object.values(abi);
+	const keys = Object.keys(abi)
+	const vals = Object.values(abi)
 
 	const fn = new ABI.Function({
 		constant: keys.indexOf('constant', 0) >= 0 ? vals[keys.indexOf('constant', 0)] : null,
@@ -59,9 +40,9 @@ function encodeABI(abi: object, ...params: any[]): string {
 		name: keys.indexOf('name', 0) >= 0 ? vals[keys.indexOf('name', 0)] : null,
 		payable: vals[keys.indexOf('payable', 0)],
 		stateMutability: vals[keys.indexOf('stateMutability', 0)],
-		type: "function"
-	});
-	return fn.encode(...params);
+		type: 'function'
+	})
+	return fn.encode(...params)
 }
 
 /**
@@ -74,18 +55,20 @@ function encodeABI(abi: object, ...params: any[]): string {
 async function getReceipt(
 	connex: Connex, timeout: number, txid: string
 ): Promise<Connex.Thor.Transaction.Receipt> {
-	if (!isByte32(txid)) throw new TypeError("Invalid txid!");
+	if (!isByte32(txid)) throw new TypeError('Invalid txid')
 
-	const ticker = connex.thor.ticker();
-	const n = timeout >= 1 ? Math.floor(timeout) : 1;
+	const ticker = connex.thor.ticker()
+	const n = timeout >= 1 ? Math.floor(timeout) : 1
 
 	for (let i = 0; i < n; i++) {
-		const receipt = await connex.thor.transaction(txid).getReceipt();
-		if (!receipt) { await ticker.next(); continue; }
-		// if (receipt.reverted) throw "TX Reverted! - txid: " + txid;
-		return receipt;
+		const receipt = await connex.thor.transaction(txid).getReceipt()
+		if (!receipt) { 
+			await ticker.next() 
+			continue 
+		}
+		return receipt
 	}
-	throw new TypeError("Time out!");
+	throw new TypeError("Time out!")
 }
 
 /**
@@ -104,21 +87,20 @@ async function deployContract(
 	value: number | string, bytecode: string,
 	abi?: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
-	if (!connex) { throw new TypeError("Empty connex!"); }
-	if (!isAddress(signer)) { throw new TypeError("Invalid signer!"); }
-	if (typeof value === 'string') {
-		if (!isHex(value)) { throw new TypeError("Invalid value hex string!"); }
-	} else {
-		value = value > 0 ? value : 0;
-		value = value <= Number.MAX_SAFE_INTEGER ? Math.floor(value) : Number.MAX_SAFE_INTEGER;
-	}
-	if (gas < 32000) { throw new TypeError("Insufficient gas!"); }
-	gas = gas < Number.MAX_SAFE_INTEGER ? Math.floor(gas) : Number.MAX_SAFE_INTEGER;
-	if (!isHex(bytecode)) { throw new TypeError("Invalid bytecode hex string!"); }
+	if (!connex) { throw errs.errConnexNotSet() }
+	if (!isAddress(signer)) { throw errs.errAddr(signer) }
+	if (!isHex(bytecode)) { throw errs.errHex(bytecode) }
 
-	let data = bytecode;
+	const err = checkValue(value)
+	if (err) { throw new TypeError(err) }
+	value = typeof value === 'string' ? value : Math.floor(value)
+
+	if (gas < 32000) { throw new TypeError('Gas too low') }
+	gas = gas < Number.MAX_SAFE_INTEGER ? Math.floor(gas) : Number.MAX_SAFE_INTEGER
+
+	let data = bytecode
 	if (abi) {
-		data = data + encodeABI(abi, ...params).slice(10);
+		data = data + encodeABI(abi, ...params).slice(10)
 	}
 
 	const signingService = connex.vendor.sign(
@@ -127,9 +109,9 @@ async function deployContract(
 			to: null,
 			value: value,
 			data: data,
-		}]);
-	signingService.signer(signer).gas(gas);
-	return signingService.request();
+		}])
+	signingService.signer(signer).gas(gas)
+	return signingService.request()
 }
 
 /**
@@ -148,30 +130,27 @@ function contractCallWithTx(
 	contractAddr: string, value: number | string,
 	abi: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
-	if (!connex) { throw new TypeError("Empty connex!"); }
-	if (!isAddress(signer)) { throw new TypeError("Invalid signer!"); }
-	if (!isAddress(contractAddr)) { throw new TypeError("Invalid contract address!"); }
-	if (typeof value === 'string') {
-		if (!isHex(value)) { throw new TypeError("Invalid value hex string!"); }
-	} else {
-		value = value > 0 ? value : 0;
-		value = value <= Number.MAX_SAFE_INTEGER ? Math.floor(value) : Number.MAX_SAFE_INTEGER;
-	}
-	if (gas < 21000) { throw new TypeError("Insufficient gas!"); }
-	gas = gas < Number.MAX_SAFE_INTEGER ? Math.floor(gas) : Number.MAX_SAFE_INTEGER;
-	if (Object.entries(abi).length == 0) { throw new TypeError("Empty ABI!"); }
+	if (!connex) { throw errs.errConnexNotSet() }
+	if (!isAddress(signer)) { throw errs.errAddr(signer) }
+	if (!isAddress(contractAddr)) { throw errs.errAddr(contractAddr) }
 
-	const data = encodeABI(abi, ...params);
+	const err = checkValue(value)
+	if (err) { throw new TypeError(err) }
+	value = typeof value === 'string' ? value : Math.floor(value)
+
+	if (gas < 21000) { throw new TypeError('Gas too low') }
+	gas = gas < Number.MAX_SAFE_INTEGER ? Math.floor(gas) : Number.MAX_SAFE_INTEGER
+
 	const signingService = connex.vendor.sign(
 		'tx',
 		[{
 			to: contractAddr,
-			value: typeof value === 'string' ? value : Math.floor(value),
-			data: data,
+			value: value,
+			data: encodeABI(abi, ...params),
 		}]
-	);
-	signingService.signer(signer).gas(Math.floor(gas));
-	return signingService.request();
+	)
+	signingService.signer(signer).gas(gas)
+	return signingService.request()
 }
 
 /**
@@ -187,10 +166,9 @@ function contractCall(
 	contractAddr: string,
 	abi: object, ...params: any[]
 ): Promise<Connex.VM.Output & Connex.Thor.Account.WithDecoded> {
-	if (!connex) { throw new TypeError("Empty connex!"); }
-	if (!isHex(contractAddr)) { throw new TypeError("Invalid contract address!") }
-	if (Object.entries(abi).length == 0) { throw new TypeError("Empty ABI!") }
-	return connex.thor.account(contractAddr).method(abi).call(...params);
+	if (!connex) { throw errs.errConnexNotSet() }
+	if (!isHex(contractAddr)) { throw errs.errAddr(contractAddr) }
+	return connex.thor.account(contractAddr).method(abi).call(...params)
 }
 
 export {
