@@ -10,7 +10,7 @@ import {
 	contractCallWithTx,
 	decodeEvent
 } from '../src/connexUtils'
-import { abi, keccak256 } from 'thor-devkit'
+import { keccak256 } from 'thor-devkit'
 
 const filePath = path.resolve(process.cwd(), './test/contracts/B.sol')
 const abiB = JSON.parse(compileContract(filePath, 'B', 'abi'))
