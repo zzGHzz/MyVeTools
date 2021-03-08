@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { BN } from 'bn.js'
 import * as solc from '@pzzh/solc'
+import { errs } from './errs'
 
 /**
  * 
@@ -15,7 +16,7 @@ function compileContract(
 	opt?: 'abi' | 'bytecode' | 'deployedBytecode'
 ): string {
 	if (!fs.existsSync(filePath)) {
-		throw new TypeError(`File ${filePath} not found.`)
+		throw errs.FileNotFound(filePath)
 	}
 
 	const dir = path.dirname(filePath)
@@ -91,7 +92,7 @@ function compileContract(
 	if (typeof contractName !== 'undefined'
 		&& (typeof output['contracts'] === 'undefined'
 			|| typeof output['contracts'][file][contractName] === 'undefined')) {
-		throw new TypeError(`Contract ${contractName} not found`)
+		throw errs.solc.ContractNotFound(contractName)
 	}
 
 	if (typeof opt !== 'undefined' && typeof contractName !== 'undefined') {
@@ -296,7 +297,7 @@ function isByte32(data: string): boolean {
  * @param hexLen 
  */
 function lPadHex(h: string, hexLen: number): string {
-	if (!isHex(h)) throw new TypeError('Invalid hex string!')
+	if (!isHex(h)) throw errs.InvalidHex(h)
 	const _h = h.slice(2)
 
 	const l = Math.floor(hexLen)
@@ -335,11 +336,11 @@ function getABI(abi: object[], _name: string, _type: 'function' | 'event' | 'con
  * Check the validity of the value input for constructing a clause.
  * @param value an integer value that can be either a hex string starting with 0x or a number
  */
-function checkValue(value: string | number): string {
+function checkValue(value: string | number): TypeError | null {
 	if (typeof value === 'string') {
-		if (!isHex(value) || value.length > 66 || value.length < 3) { return 'Invalid hex string' }
-	} else if (value < 0 || value > Number.MAX_SAFE_INTEGER) { return 'Number value out of range' }
-	return ''
+		if (!isHex(value) || value.length > 66 || value.length < 3) { return errs.InvalidHex(value) }
+	} else if (value < 0 || value > Number.MAX_SAFE_INTEGER) { return errs.InvalidNumber(value) }
+	return null
 }
 
 export {

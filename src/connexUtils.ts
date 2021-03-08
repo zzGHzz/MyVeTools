@@ -1,7 +1,7 @@
 /// <reference types="@vechain/connex" />
 import { abi as ABI } from 'thor-devkit'
 import { isAddress, isByte32, isHex, checkValue } from './utils'
-import * as errs from './errs'
+import { errs } from './errs'
 
 /**
  * Decode event data included in transaction receipt.
@@ -62,9 +62,9 @@ async function getReceipt(
 
 	for (let i = 0; i < n; i++) {
 		const receipt = await connex.thor.transaction(txid).getReceipt()
-		if (!receipt) { 
-			await ticker.next() 
-			continue 
+		if (!receipt) {
+			await ticker.next()
+			continue
 		}
 		return receipt
 	}
@@ -87,12 +87,12 @@ async function deployContract(
 	value: number | string, bytecode: string,
 	abi?: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
-	if (!connex) { throw errs.errConnexNotSet() }
-	if (!isAddress(signer)) { throw errs.errAddr(signer) }
-	if (!isHex(bytecode)) { throw errs.errHex(bytecode) }
+	if (!connex) { throw errs.contract.ConnexNotSet() }
+	if (!isAddress(signer)) { throw errs.InvalidAddress(signer) }
+	if (!isHex(bytecode)) { throw errs.InvalidHex(bytecode) }
 
 	const err = checkValue(value)
-	if (err) { throw new TypeError(err) }
+	if (err) { throw err }
 	value = typeof value === 'string' ? value : Math.floor(value)
 
 	if (gas < 32000) { throw new TypeError('Gas too low') }
@@ -130,12 +130,12 @@ function contractCallWithTx(
 	contractAddr: string, value: number | string,
 	abi: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
-	if (!connex) { throw errs.errConnexNotSet() }
-	if (!isAddress(signer)) { throw errs.errAddr(signer) }
-	if (!isAddress(contractAddr)) { throw errs.errAddr(contractAddr) }
+	if (!connex) { throw errs.contract.ConnexNotSet() }
+	if (!isAddress(signer)) { throw errs.InvalidAddress(signer) }
+	if (!isAddress(contractAddr)) { throw errs.InvalidAddress(contractAddr) }
 
 	const err = checkValue(value)
-	if (err) { throw new TypeError(err) }
+	if (err) { throw err }
 	value = typeof value === 'string' ? value : Math.floor(value)
 
 	if (gas < 21000) { throw new TypeError('Gas too low') }
@@ -166,8 +166,8 @@ function contractCall(
 	contractAddr: string,
 	abi: object, ...params: any[]
 ): Promise<Connex.VM.Output & Connex.Thor.Account.WithDecoded> {
-	if (!connex) { throw errs.errConnexNotSet() }
-	if (!isHex(contractAddr)) { throw errs.errAddr(contractAddr) }
+	if (!connex) { throw errs.contract.ConnexNotSet() }
+	if (!isHex(contractAddr)) { throw errs.InvalidAddress(contractAddr) }
 	return connex.thor.account(contractAddr).method(abi).call(...params)
 }
 
