@@ -53,7 +53,49 @@ This package defines functions that interact directly with a Thor network. It in
 * `getReceipt` - to get the receipt of a transaction
 * `decodeEvent` - to decode a logged event
 
-See `test/connexUitls.test.ts` for usage examples.
+See `test/connexUitls.test.ts` for examples.
+
+### Package `contract`
+This package is designed to make it easier to operate a contract.
+
+To create a Contract instance:
+```typescript
+const c = new Contract({abi: contractABI})
+```
+
+To deploy the contract:
+```typescript
+// Set bytecode
+c.bytecode(bin)
+
+// Assume that the constructor is of no inputs and doesn't need transfer any value. Method deploy generates the clause for deploying the contract.
+const clause = c.deploy(0)
+
+// Construct and send the transaction. Here connex implements the Connex interface.
+const output = await connex.vendor.sign('tx', [clause]).request()
+```
+
+To send a transaction to call function `set(uint256)`:
+```typescript
+// Set deployed contract address
+c.at(deployedContractAddress)
+
+// Method send generates the clause that calls the function
+const clause = c.send('set', 0, newValue)
+
+// Construct and send the transaction. Here connex implements the Connex interface.
+const output = await connex.vendor.sign('tx', [clause]).request()
+```
+
+To call function `get`:
+```typescript
+// Set the implementation of Connex interface
+c.connex(connex)
+
+const output = await c.call('get')
+```
+
+See `test/contract.test.ts` for more examples.
 
 ## Test
 To test package `connexUtils`, you will have to run the [Thor client](https://github.com/vechain/thor) in the solo mode. 
