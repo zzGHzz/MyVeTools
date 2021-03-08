@@ -9,6 +9,14 @@ export class Contract {
 	private addr: string | null
 	private conn: Connex | null
 
+	/**
+	 * Constructor
+	 * 
+	 * @param params.abi ABI
+	 * @param params.connex (optional) implementation of Connex interface
+	 * @param params.bytecode (optional) bytecode hex string
+	 * @param params.address (optional) deployed address
+	 */
 	constructor(params: { abi: object[], connex?: Connex, address?: string, bytecode?: string }) {
 		if (Object.keys(params.abi).length === 0) { throw errs.abi.Empty() }
 		this.abi = params.abi
@@ -34,6 +42,12 @@ export class Contract {
 		}
 	}
 
+	/**
+	 * Set the deployed address
+	 * 
+	 * @param addr address
+	 * @returns this 
+	 */
 	at(addr: string): this {
 		if (!isAddress(addr)) { throw errs.InvalidAddress(addr) }
 		this.addr = addr
@@ -41,6 +55,12 @@ export class Contract {
 		return this
 	}
 
+	/**
+	 * Set the bytecode
+	 * 
+	 * @param bin bytecode hex string
+	 * @returns this
+	 */
 	bytecode(bin: string): this {
 		if (!isHex(bin)) { throw errs.InvalidHex(bin) }
 		this.bin = bin
@@ -48,11 +68,24 @@ export class Contract {
 		return this
 	}
 
+	/**
+	 * Set the implementation of the Connex interface
+	 * 
+	 * @param conn 
+	 * @returns this
+	 */
 	connex(conn: Connex): this {
 		this.conn = conn
 		return this
 	}
 
+	/**
+	 * Call a contract function locally
+	 * 
+	 * @param fName function name	
+	 * @param params parameters of the function
+	 * @returns output
+	 */
 	call(fName: string, ...params: any[]): Promise<Connex.VM.Output & Connex.Thor.Account.WithDecoded> {
 		if (this.conn === null) { throw errs.contract.ConnexNotSet() }
 		if (this.addr === null) { throw errs.contract.AddressNotSet() }
@@ -80,6 +113,14 @@ export class Contract {
 		}
 	}
 
+	/**
+	 * Generate a clause to execute a contract function onchain
+	 * 
+	 * @param fName function name
+	 * @param value value to be sent
+	 * @param params parameters of the function
+	 * @returns clause
+	 */
 	send(fName: string, value: number | string, ...params: any[]): Connex.VM.Clause {
 		const abi = getABI(this.abi, fName, 'function')
 		if (Object.keys(abi).length === 0) { throw errs.abi.NotFound(fName, 'function') }
@@ -114,6 +155,13 @@ export class Contract {
 		}
 	}
 
+	/**
+	 * Generate a clause that deploys the contract onchain
+	 * 
+	 * @param value value to be sent
+	 * @param params paramters of the contract constructor
+	 * @returns 
+	 */
 	deploy(value: string | number, ...params: any[]): Connex.VM.Clause {
 		if (this.bin === null) { throw errs.contract.BytecodeNotSet() }
 
