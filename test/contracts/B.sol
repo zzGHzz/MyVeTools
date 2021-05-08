@@ -22,7 +22,7 @@ contract B {
 }
 
 contract C {
-	function helloWorl() public pure returns(string memory) {
+	function helloWorld() public pure returns(string memory) {
 		return "hello world";
 	}
 }
