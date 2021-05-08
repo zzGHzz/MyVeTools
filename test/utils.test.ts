@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import * as path from 'path'
 
-import { checkValue, compileContract, getABI } from '../src/utils'
+import { compileContract, getABI } from '../src/utils'
 import { errs } from '../src/errs'
 
 const filePath = path.resolve(process.cwd(), './test/contracts/B.sol')

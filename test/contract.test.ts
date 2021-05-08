@@ -1,4 +1,3 @@
-/// <reference types="@vechain/connex"/>
 import path from 'path'
 import { expect, assert } from 'chai'
 import { Framework } from '@vechain/connex-framework'
