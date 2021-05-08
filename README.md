@@ -71,7 +71,7 @@ c.bytecode(bin)
 // Assume that the constructor is of no inputs and doesn't need transfer any value. Method deploy generates the clause for deploying the contract.
 const clause = c.deploy(0)
 
-// Construct and send the transaction. Here connex implements the Connex interface.
+// Construct and send the transaction. Here `connex` is an instance that implements the Connex interface.
 const output = await connex.vendor.sign('tx', [clause]).request()
 ```
 
@@ -83,13 +83,12 @@ c.at(deployedContractAddress)
 // Method send generates the clause that calls the function
 const clause = c.send('set', 0, newValue)
 
-// Construct and send the transaction. Here connex implements the Connex interface.
+// Construct and send the transaction.
 const output = await connex.vendor.sign('tx', [clause]).request()
 ```
 
 To call function `get`:
 ```typescript
-// Set the implementation of Connex interface
 c.connex(connex)
 
 const output = await c.call('get')
