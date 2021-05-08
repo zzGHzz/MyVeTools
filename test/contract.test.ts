@@ -98,6 +98,7 @@ describe('Contract', () => {
 			wrapper = () => { c.send('set', 0) }
 			expect(wrapper).to.throw(TypeError, errs.contract.AddressNotSet().message)
 
+			// missing parameter
 			c.at(wallet.list[0].address)
 			wrapper = () => { c.send('set', 0) }
 			expect(wrapper).to.throw()
@@ -110,6 +111,7 @@ describe('Contract', () => {
 			wrapper = () => { c.deploy(0) }
 			expect(wrapper).to.throw(TypeError, errs.contract.BytecodeNotSet().message)
 
+			// missing parameter
 			c.bytecode(bytecode)
 			wrapper = () => { c.deploy(0) }
 			expect(wrapper).to.throw()
@@ -119,12 +121,17 @@ describe('Contract', () => {
 	let receipt: Connex.Thor.Transaction.Receipt
 	let output: Connex.Vendor.TxResponse
 	let callOutput: Connex.VM.Output & Connex.Thor.Account.WithDecoded
+	let dryRunOut: Connex.VM.Output[]
 
 	it('deploy contract', async () => {
 		const initVal = 101
 
 		try {
 			const clause = B.deploy(0, initVal)
+			
+			dryRunOut = await conn.thor.explain([clause]).execute()
+			expect(dryRunOut[0].reverted).to.equal(false)
+
 			output = await conn.vendor.sign('tx', [clause]).request()
 		} catch (err) {
 			assert.fail('deployContract: ' + err)
@@ -158,6 +165,10 @@ describe('Contract', () => {
 
 		try {
 			const clause = B.send('set', 0, newVal)
+
+			dryRunOut = await conn.thor.explain([clause]).execute()
+			expect(dryRunOut[0].reverted).to.equal(false)
+
 			output = await conn.vendor.sign('tx', [clause]).request()
 		} catch (err) { assert.fail('contractCallWithTx: ' + err) }
 
