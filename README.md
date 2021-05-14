@@ -16,6 +16,11 @@ node_modules/.bin/solcver -u <VERSION>
 ```
 
 ## Usage
+### CMD Tools
+To create a template TS file for testing smart contracts
+```bash
+node_modules/.bin/mvt -c <FileName>
+```
 ### Package `builtin`
 This package defines the deployed addresses and ABIs of the [built-in smart contracts](https://docs.vechain.org/thor/learn/builtin-contracts.html). 
 
