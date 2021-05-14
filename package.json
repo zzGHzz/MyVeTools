@@ -1,38 +1,46 @@
 {
-  "name": "myvetools",
-  "version": "1.2.2",
-  "description": "Tools for interacting with VeChainThor",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zzGHzz/MyVeTools.git"
-  },
-  "author": "Peter Zhou",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/zzGHzz/MyVeTools/issues"
-  },
-  "homepage": "https://github.com/zzGHzz/MyVeTools#readme",
-  "dependencies": {
-    "@pzzh/solc": "^1.1.2",
-    "@vechain/connex": "^2.0.0",
-    "thor-devkit": "^2.0.1"
-  },
-  "files": [
-    "dist/*.*"
-  ],
-  "scripts": {
-    "test": "mocha --no-timeouts --colors -r ts-node/register test/*.test.ts"
-  },
-  "devDependencies": {
-    "@types/bn.js": "^5.1.0",
-    "bn.js": "^4.11.9",
-    "chai": "^4.3.0",
-    "mocha": "^8.2.1",
-    "@types/chai": "^4.2.14",
-    "@types/mocha": "^8.2.0",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.1.4"
-  }
+	"name": "myvetools",
+	"version": "1.2.2",
+	"description": "Tools for interacting with VeChainThor",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zzGHzz/MyVeTools.git"
+	},
+	"author": "Peter Zhou",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/zzGHzz/MyVeTools/issues"
+	},
+	"homepage": "https://github.com/zzGHzz/MyVeTools#readme",
+	"dependencies": {
+		"@pzzh/solc": "^1.1.2",
+		"@vechain/connex": "^2.0.0",
+		"thor-devkit": "^2.0.1"
+	},
+	"files": [
+		"dist/*.*",
+		"cmd/test-tmpl"
+	],
+	"bin": {
+		"mvt": "./cmd/cli.js"
+	},
+	"scripts": {
+		"test": "mocha --no-timeouts --colors -r ts-node/register test/*.test.ts",
+		"postinstall": "node ./cmd/cli.js"
+	},
+	"engines": {
+		"node": ">=8.0.0"
+	},
+	"devDependencies": {
+		"@types/bn.js": "^5.1.0",
+		"@types/chai": "^4.2.14",
+		"@types/mocha": "^8.2.0",
+		"bn.js": "^4.11.9",
+		"chai": "^4.3.0",
+		"mocha": "^8.2.1",
+		"ts-node": "^9.1.1",
+		"typescript": "^4.1.4"
+	}
 }

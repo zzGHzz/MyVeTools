@@ -1,0 +1,72 @@
+import { expect, assert } from 'chai'
+import path from 'path'
+
+import { Framework } from '@vechain/connex-framework'
+import { Driver, SimpleNet, SimpleWallet } from '@vechain/connex-driver'
+
+import { soloAccounts } from 'myvetools/dist/builtin'
+import { compileContract, getABI } from 'myvetools/dist/utils'
+import { Contract } from 'myvetools/dist/contract'
+import { getReceipt, decodeEvent } from 'myvetools/dist/connexUtils'
+
+describe('Test TestToken contract', () => {
+	const wallet = new SimpleWallet()
+	// Add private keys
+	soloAccounts.forEach(val => { wallet.import(val) })
+
+	// Set to connect to a local Thor node
+	const url = 'http://localhost:8669/'
+
+	let driver: Driver
+	let connex: Framework
+
+	before(async () => {
+		try {
+			driver = await Driver.connect(new SimpleNet(url), wallet)
+			connex = new Framework(driver)
+		} catch (err) {
+			assert.fail('Failed to connect: ' + err)
+		}
+	})
+
+	after(() => {
+		driver.close()
+	})
+
+	// let receipt: Connex.Thor.Transaction.Receipt
+	// let txRep: Connex.Vendor.TxResponse
+	// let callOut: Connex.VM.Output & Connex.Thor.Account.WithDecoded
+})
+
+/**
+ * 	// Initiate a Contract instance
+ * 	const abi = JSON.parse(compileContract('path/to/file', 'contract-name', 'abi'))
+ * 	const bin = compileContract('path/to/file', 'contract-name', 'bytecode')
+ * 	const c = new Contract({abi: abi, bytecode: bin, connex: connex})
+ * 
+ * 	// construct a clause for contract deployment
+ * 	const clause = c.deploy(value, ...params)
+ * 
+ * 	// Send a transaction
+ * 	txRep = await connex.vendor.sign('tx', [clause1, clause2, ...])
+ * 			.signer(sender)
+ * 			.request()
+ * 
+ * 	// Get receipt and check success of the tx execution
+ * 	receipt = await getReceipt(connex, timeoutInBlock, txRep.txid)
+ * 	expect(receipt.reverted).to.equal(false)
+ * 
+ * 	// Get the contract address and set it to the contract instance
+ * 	if (receipt.outputs[0].contractAddress !== null) {
+ * 		c.at(receipt.outputs[0].contractAddress)
+ * 	}
+ * 
+ *  // Get event info
+ * 	const decoded = decodeEvent(
+ * 		receipt.outputs[clauseIndex].events[eventIndex],
+ * 		getABI(abi, 'EventName', 'event')
+ * 	)
+ * 
+ * 	// Call contract function locally
+ *  callOut = await c.call('funcName', ...params) 
+ */
