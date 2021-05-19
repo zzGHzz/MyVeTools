@@ -170,7 +170,10 @@ export class Contract {
 		value = typeof value === 'string' ? value : Math.floor(value)
 
 		let data = this.bin
-		const abi = getABI(this.abi, '', 'constructor')
+		let abi = getABI(this.abi, '', 'constructor')
+		if (Object.keys(abi).length === 0) {
+			abi = JSON.parse('{"inputs":[],"stateMutability":"nonpayable","type":"constructor"}')
+		}
 		try {
 			data = data + encodeABI(abi, ...params).slice(10)
 		} catch (err) {

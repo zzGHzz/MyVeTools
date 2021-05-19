@@ -158,6 +158,17 @@ describe('Contract', () => {
 			assert.fail('contractCall: ' + err)
 		}
 		expect(parseInt(callOutput.data, 16)).to.equal(initVal)
+
+		// Test when constructor is missing
+		try {
+			const C = new Contract({
+				abi: JSON.parse(compileContract(filePath, 'C', 'abi')),
+				bytecode: compileContract(filePath, 'C', 'bytecode')
+			})
+			const clause = C.deploy(0)
+			dryRunOut = await conn.thor.explain([clause]).execute()
+			expect(dryRunOut[0].reverted).to.equal(false)
+		} catch (err) { assert.fail('Failed to generate default constructor: ' + err) }
 	})
 
 	it('contract call with tx', async () => {
