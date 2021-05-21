@@ -29,6 +29,8 @@ To get ABI of function `energy` from contract `Prototype`:
 const abi = getBuiltinABI('prototype', 'energy', 'function')
 ```
 
+You can import `soloAccounts` to get the 10 default accounts in the `solo` mode of the `thor client >=1.5.0`.
+
 ### Package `utils`
 To get ABI:
 ```typescript
