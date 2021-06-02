@@ -10,8 +10,7 @@ export class Contract {
 	private conn: Connex | null
 
 	/**
-	 * Constructor
-	 * 
+	 * @dev Constructor
 	 * @param params.abi ABI
 	 * @param params.connex (optional) implementation of Connex interface
 	 * @param params.bytecode (optional) bytecode hex string
@@ -43,8 +42,7 @@ export class Contract {
 	}
 
 	/**
-	 * Set the deployed address
-	 * 
+	 * @dev Set the deployed address
 	 * @param addr address
 	 * @returns this 
 	 */
@@ -56,8 +54,7 @@ export class Contract {
 	}
 
 	/**
-	 * Set the bytecode
-	 * 
+	 * @dev Set the bytecode
 	 * @param bin bytecode hex string
 	 * @returns this
 	 */
@@ -69,8 +66,7 @@ export class Contract {
 	}
 
 	/**
-	 * Set the implementation of the Connex interface
-	 * 
+	 * @dev Set the implementation of the Connex interface
 	 * @param conn 
 	 * @returns this
 	 */
@@ -80,8 +76,7 @@ export class Contract {
 	}
 
 	/**
-	 * Call a contract function locally
-	 * 
+	 * @dev Call a contract function locally
 	 * @param fName function name	
 	 * @param params parameters of the function
 	 * @returns output
@@ -114,8 +109,7 @@ export class Contract {
 	}
 
 	/**
-	 * Generate a clause to execute a contract function onchain
-	 * 
+	 * @dev Generate a clause to execute a contract function onchain
 	 * @param fName function name
 	 * @param value value to be sent
 	 * @param params parameters of the function
@@ -156,11 +150,10 @@ export class Contract {
 	}
 
 	/**
-	 * Generate a clause that deploys the contract onchain
-	 * 
+	 * @dev Generate a clause that deploys the contract onchain
 	 * @param value value to be sent
 	 * @param params paramters of the contract constructor
-	 * @returns 
+	 * @returns clause
 	 */
 	deploy(value: string | number, ...params: any[]): Connex.VM.Clause {
 		if (this.bin === null) { throw errs.contract.BytecodeNotSet() }
@@ -189,7 +182,9 @@ export class Contract {
 
 	/**
 	 * @dev Get ABI of a function or an event of the contract
-	 * @param 
+	 * @param name function/event name
+	 * @param type 'function' | 'event'
+	 * @returns Found ABI
 	 */
 	ABI(name: string, type: 'function' | 'event'): object {
 		const res = getABI(this.abi, name, type)
