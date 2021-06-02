@@ -51,5 +51,9 @@ export namespace errs {
 		export function AddressNotSet(): TypeError {
 			return new TypeError('Address not set')
 		}
+
+		export function ABINotFound(): TypeError {
+			return new TypeError('ABI not Found')
+		}
 	}
 }

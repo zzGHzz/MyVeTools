@@ -186,4 +186,18 @@ export class Contract {
 			data: data,
 		}
 	}
+
+	/**
+	 * @dev Get ABI of a function or an event of the contract
+	 * @param 
+	 */
+	ABI(name: string, type: 'function' | 'event'): object {
+		const res = getABI(this.abi, name, type)
+
+		if (Object.keys(res).length === 0) {
+			throw errs.contract.ABINotFound()
+		}
+		
+		return res
+	}
 }

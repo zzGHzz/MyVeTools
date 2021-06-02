@@ -116,6 +116,18 @@ describe('Contract', () => {
 			wrapper = () => { c.deploy(0) }
 			expect(wrapper).to.throw()
 		})
+
+		it('abi', () => {
+			const c = new Contract({ abi: abiB })
+
+			let wrapper: () => void
+			wrapper = () => { c.ABI("test", "function") }
+			expect(wrapper).to.throw(TypeError, errs.contract.ABINotFound().message)
+
+			const actual = c.ABI('set', 'function')
+			const expected = getABI(abiB, 'set', 'function')
+			expect(actual).to.eql(expected)
+		})
 	})
 
 	let receipt: Connex.Thor.Transaction.Receipt
