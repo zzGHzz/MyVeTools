@@ -1,11 +1,12 @@
-import * as path from 'path'
-import * as fs from 'fs'
+import path from 'path'
+import fs from 'fs'
+import crypto from 'crypto'
 import { BN } from 'bn.js'
 import * as solc from '@pzzh/solc'
 import { errs } from './errs'
 
 /**
- * 
+ * @dev Compile smart contract
  * @param filePath absolute path of the solidity file
  * @param contractName target contract name
  * @param opt options: abi | bytecode | deployedBytecode
@@ -111,7 +112,6 @@ function compileContract(
 
 /**
  * @deprecated Execute external program
- * 
  * @param cmd - command
  * @param params - parameters 
  */
@@ -130,7 +130,6 @@ function exec(cmd: string, ...params: string[]): string {
 /**
  * @deprecated Invoke local solidity compiler `solc` to get ABI of a contract. 
  * Compiler version needs to be compatible with the source file.
- * 
  * @param filePath - solidity source file with absolute path
  * @param contractName - target contract name
  */
@@ -156,7 +155,6 @@ function getSolcABI(file: string, contractName: string): string {
 /**
  * @deprecated Invoke local solidity compiler `solc` to get binary code of a contract. 
  * Compiler version needs to be compatible with the source file.
- * 
  * @param file - solidity source file 
  * @param contractName - target contract name
  */
@@ -185,7 +183,6 @@ function getSolcBin(file: string, contractName: string): string {
 /**
  * @deprecated Invoke local solidity compiler `solc` to get runtime binary code of a contract. 
  * Compiler version needs to be compatible with the source file.
- * 
  * @param file - solidity source file 
  * @param contractName - target contract name
  */
@@ -206,8 +203,7 @@ function getSolcBinRuntime(file: string): string {
 }
 
 /**
- * Convert an integer into a hex string.
- * 
+ * @dev Convert an integer into a hex string.
  * @param num - integer
  * @param hexLen - output hex string length 
  */
@@ -232,8 +228,7 @@ function numToHexStr(num: number, hexLen?: number): string {
 }
 
 /**
- * Print a big number in exponential notation.
- * 
+ * @dev Print a big number in exponential notation.
  * @param num - big number
  * @param prec - precision (int)
  */
@@ -244,8 +239,7 @@ function BNToExpString(num: any, prec: number): string {
 }
 
 /**
- * Convert a text string into a hex string.
- * 
+ * @dev Convert a text string into a hex string.
  * @param str - input text string
  * @param hexLen - output hex string length
  */
@@ -260,9 +254,8 @@ function strToHexStr(str: string, hexLen: number): string {
 }
 
 /**
- * Check whether the input string is a valid hex string. 
+ * @dev Check whether the input string is a valid hex string. 
  * The input string must begin with '0x'.
- * 
  * @param str - input string
  */
 function isHex(str: string): boolean {
@@ -270,9 +263,8 @@ function isHex(str: string): boolean {
 }
 
 /**
- * Check whether the input string is a valid VeChainTor address.
+ * @dev Check whether the input string is a valid VeChainTor address.
  * The input string must begin with '0x'.
- * 
  * @param addr 
  */
 function isAddress(addr: string): boolean {
@@ -290,9 +282,8 @@ function isByte32(data: string): boolean {
 }
 
 /**
- * Pad zeros to the left side of the input hex string to have a certain length.
+ * @dev Pad zeros to the left side of the input hex string to have a certain length.
  * The input string must begin with '0x'.
- * 
  * @param h 
  * @param hexLen 
  */
@@ -307,8 +298,7 @@ function lPadHex(h: string, hexLen: number): string {
 }
 
 /**
- * Get the ABI for a specific function or event.
- * 
+ * @dev Get the ABI for a specific function or event.
  * @param abi - object array that contains all the contract ABIs
  * @param _name - function/event name
  * @param _type - 'function' | 'event' | 'constructor'
@@ -333,7 +323,7 @@ function getABI(abi: object[], _name: string, _type: 'function' | 'event' | 'con
 }
 
 /**
- * Check the validity of the value input for constructing a clause.
+ * @dev Check the validity of the value input for constructing a clause.
  * @param value an integer value that can be either a hex string starting with 0x or a number
  */
 function checkValue(value: string | number): TypeError | null {
@@ -341,6 +331,15 @@ function checkValue(value: string | number): TypeError | null {
 		if (!isHex(value) || value.length > 66 || value.length < 3) { return errs.InvalidHex(value) }
 	} else if (value < 0 || value > Number.MAX_SAFE_INTEGER) { return errs.InvalidNumber(value) }
 	return null
+}
+
+/**
+ * @dev Generate random bytes represented by a hex string
+ * @param n Number of bytes
+ * @returns Hex string starting with 0x
+ */
+function randBytes(n: number): string {
+	return lPadHex('0x' + crypto.randomBytes(n).toString('hex'), n * 2)
 }
 
 export {
@@ -353,5 +352,6 @@ export {
 	getABI,
 	exec, getSolcBin, getSolcBinRuntime, getSolcABI,
 	compileContract,
-	checkValue
+	checkValue,
+	randBytes
 }
