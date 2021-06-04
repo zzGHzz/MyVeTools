@@ -85,8 +85,10 @@ export class Contract {
 		if (this.conn === null) { throw errs.contract.ConnexNotSet() }
 		if (this.addr === null) { throw errs.contract.AddressNotSet() }
 
-		const abi = getABI(this.abi, fName, 'function')
-		if (Object.keys(abi).length === 0) { throw errs.abi.NotFound(fName, 'function') }
+		const abi = getABI(this.abi, fName, 'function', params.length)
+		if (Object.keys(abi).length === 0) { 
+			throw errs.abi.NotFound(fName, 'function', params.length) 
+		}
 
 		let stateMutability: string | null = null
 		for (const [k, v] of Object.entries(abi)) {

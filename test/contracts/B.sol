@@ -29,6 +29,10 @@ contract B {
 	function get() public view returns (uint) {
 		return a.a();
 	}
+
+	function get(uint b) public view returns (uint) {
+		return a.a() + b;
+	}
 }
 
 contract C {

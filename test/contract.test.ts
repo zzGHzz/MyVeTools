@@ -79,7 +79,7 @@ describe('Contract', () => {
 			expect(wrapper).to.throw(TypeError, errs.contract.AddressNotSet().message)
 
 			c.at('0x' + '0'.repeat(40))
-			expect(wrapper).to.throw(TypeError, errs.abi.NotFound('test', 'function').message)
+			expect(wrapper).to.throw(TypeError, errs.abi.NotFound('test', 'function', 0).message)
 
 			wrapper = () => { c.call('set') }
 			expect(wrapper).to.throw(TypeError, errs.abi.InvalidStateMutability('nonpayable').message)
@@ -190,7 +190,10 @@ describe('Contract', () => {
 
 		const decoded = decodeEvent(receipt.outputs[0].events[1], getABI(abiB, 'SetB', 'event'))
 		expect(parseInt(decoded['a'])).to.eql(newVal)
+
 		callOutput = await B.call('get')
 		expect(parseInt(callOutput.data, 16)).to.equal(newVal)
+		callOutput = await B.call('get', 123)
+		expect(parseInt(callOutput.data, 16)).to.equal(newVal + 123)
 	})
 })
