@@ -49,14 +49,21 @@ describe('test utils', function () {
 			expect(vals[keys.indexOf('inputs')].length).to.eql(1)
 		})
 		it('Get function ABI with the number of parameters', function () {
-			const actual = getABI(abiB, 'set', 'function')
-
-			const keys = Object.keys(actual)
-			const vals = Object.values(actual)
+			let actual = getABI(abiB, 'set', 'function', 2)
+			let keys = Object.keys(actual)
+			let vals = Object.values(actual)
 
 			expect(vals[keys.indexOf('name')]).to.eql('set')
 			expect(vals[keys.indexOf('type')]).to.eql('function')
-			expect(vals[keys.indexOf('inputs')].length).to.eql(1)
+			expect(vals[keys.indexOf('inputs')].length).to.eql(2)
+
+			actual = getABI(abiB, 'set', 'function', 0)
+			keys = Object.keys(actual)
+			vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('set')
+			expect(vals[keys.indexOf('type')]).to.eql('function')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(0)
 		})
 		it('Test non-existing function', function () {
 			const actual = getABI(abiB, 'NONE', 'function')

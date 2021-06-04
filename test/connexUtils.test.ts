@@ -94,13 +94,13 @@ describe('connexUtils', () => {
 
 		try {
 			output = await contractCallWithTx(
-				connex,							// connex
-				wallet.list[0].address,			// signer
-				1000000,						// allowed gas
-				contract,						// deployed contract address
-				0,								// value	
-				getABI(abiB, 'set', 'function'),	// abi of func set()
-				newVal							// newly set value
+				connex,								// connex
+				wallet.list[0].address,				// signer
+				1000000,							// allowed gas
+				contract,							// deployed contract address
+				0,									// value	
+				getABI(abiB, 'set', 'function', 1),	// abi of func set()
+				newVal								// newly set value
 			)
 		} catch (err) { assert.fail('contractCallWithTx: ' + err) }
 
@@ -119,12 +119,12 @@ describe('connexUtils', () => {
 			'0x' + keccak256('SetB(uint256)').toString('hex')]
 		receipt.outputs[0].events.forEach((event, i) => {
 			expect(event.topics[0]).to.eql(topics[i])
-			expect(parseInt(event.data, 16)).to.equal(newVal)
+			expect(parseInt(event.topics[1], 16)).to.equal(newVal)
 		})
 
 		try {
 			const decoded = decodeEvent(receipt.outputs[0].events[1], getABI(abiB, 'SetB', 'event'))
-			expect(parseInt(decoded['_a'])).to.eql(newVal)
+			expect(parseInt(decoded['a'])).to.eql(newVal)
 		} catch (err) { assert.fail('decodeEvent: ' + err) }
 
 		try {

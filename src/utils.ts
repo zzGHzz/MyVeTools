@@ -320,7 +320,7 @@ function getABI(
 
 		if (type === 'function' || type === 'event') {
 			if (type === t && n.toLowerCase() === lname) {
-				if(nParam && vals[keys.indexOf('inputs')].length !== nParam) {
+				if(typeof nParam !== 'undefined' && vals[keys.indexOf('inputs')].length !== nParam) {
 					continue
 				}
 

@@ -90,7 +90,7 @@ describe('Contract', () => {
 
 			let wrapper: () => void
 			wrapper = () => { c.send('test', 0) }
-			expect(wrapper).to.throw(TypeError, errs.abi.NotFound('test', 'function').message)
+			expect(wrapper).to.throw(TypeError, errs.abi.NotFound('test', 'function', 0).message)
 
 			wrapper = () => { c.send('get', 0) }
 			expect(wrapper).to.throw(TypeError, errs.abi.InvalidStateMutability('view').message)
@@ -98,10 +98,10 @@ describe('Contract', () => {
 			wrapper = () => { c.send('set', 0) }
 			expect(wrapper).to.throw(TypeError, errs.contract.AddressNotSet().message)
 
-			// missing parameter
+			// Incorrect number of parameters
 			c.at(wallet.list[0].address)
-			wrapper = () => { c.send('set', 0) }
-			expect(wrapper).to.throw()
+			wrapper = () => { c.send('set', 0, 10, 10, 10) }
+			expect(wrapper).to.throw(TypeError, errs.abi.NotFound('set', 'function', 3).message)
 		})
 
 		it('deploy', () => {
@@ -124,39 +124,33 @@ describe('Contract', () => {
 			wrapper = () => { c.ABI("test", "function") }
 			expect(wrapper).to.throw(TypeError, errs.contract.ABINotFound().message)
 
-			const actual = c.ABI('set', 'function')
-			const expected = getABI(abiB, 'set', 'function')
-			expect(actual).to.eql(expected)
+			let actual = c.ABI('set', 'function')
+			let keys = Object.keys(actual)
+			let vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('set')
+			expect(vals[keys.indexOf('type')]).to.eql('function')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(1)
+
+			actual = c.ABI('set', 'function', 2)
+			keys = Object.keys(actual)
+			vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('set')
+			expect(vals[keys.indexOf('type')]).to.eql('function')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(2)
 		})
 	})
 
 	let receipt: Connex.Thor.Transaction.Receipt
-	let output: Connex.Vendor.TxResponse
+	let txResp: Connex.Vendor.TxResponse
 	let callOutput: Connex.VM.Output & Connex.Thor.Account.WithDecoded
-	let dryRunOut: Connex.VM.Output[]
 
 	it('deploy contract', async () => {
 		const initVal = 101
 
-		try {
-			const clause = B.deploy(0, initVal)
-			
-			dryRunOut = await conn.thor.explain([clause]).execute()
-			expect(dryRunOut[0].reverted).to.equal(false)
-
-			output = await conn.vendor.sign('tx', [clause]).request()
-		} catch (err) {
-			assert.fail('deployContract: ' + err)
-		}
-
-		try {
-			receipt = await getReceipt(
-				conn, 		// connex instance
-				5, 				// timeout: number of blocks
-				output.txid		// txid
-			)
-		} catch (err) { assert.fail('getReceipt: ' + err) }
-
+		txResp = await conn.vendor.sign('tx', [B.deploy(0, initVal)]).request()
+		receipt = await getReceipt(conn, 5, txResp.txid)
 		expect(receipt.reverted).to.equal(false)
 		expect(receipt.outputs[0].contractAddress).not.equal(null)
 
@@ -164,44 +158,24 @@ describe('Contract', () => {
 			B.at(receipt.outputs[0].contractAddress)
 		}
 
-		try {
-			callOutput = await B.call('get')
-		} catch (err) {
-			assert.fail('contractCall: ' + err)
-		}
+		callOutput = await B.call('get')
 		expect(parseInt(callOutput.data, 16)).to.equal(initVal)
 
 		// Test when constructor is missing
-		try {
-			const C = new Contract({
-				abi: JSON.parse(compileContract(filePath, 'C', 'abi')),
-				bytecode: compileContract(filePath, 'C', 'bytecode')
-			})
-			const clause = C.deploy(0)
-			dryRunOut = await conn.thor.explain([clause]).execute()
-			expect(dryRunOut[0].reverted).to.equal(false)
-		} catch (err) { assert.fail('Failed to generate default constructor: ' + err) }
+		const C = new Contract({
+			abi: JSON.parse(compileContract(filePath, 'C', 'abi')),
+			bytecode: compileContract(filePath, 'C', 'bytecode')
+		})
+		txResp = await conn.vendor.sign('tx', [C.deploy(0)]).request()
+		receipt = await getReceipt(conn, 5, txResp.txid)
+		expect(receipt.reverted).to.equal(false)
 	})
 
 	it('contract call with tx', async () => {
 		const newVal = 201
 
-		try {
-			const clause = B.send('set', 0, newVal)
-
-			dryRunOut = await conn.thor.explain([clause]).execute()
-			expect(dryRunOut[0].reverted).to.equal(false)
-
-			output = await conn.vendor.sign('tx', [clause]).request()
-		} catch (err) { assert.fail('contractCallWithTx: ' + err) }
-
-		try {
-			receipt = await getReceipt(
-				conn, 		// connex instance
-				5, 				// timeout: number of blocks
-				output.txid		// txid
-			)
-		} catch (err) { assert.fail('getReceipt: ' + err) }
+		txResp = await conn.vendor.sign('tx', [B.send('set', 0, newVal)]).request()
+		receipt = await getReceipt(conn, 5, txResp.txid)
 
 		expect(receipt.reverted).to.equal(false)
 		expect(receipt.outputs[0].events.length).to.equal(2)
@@ -211,17 +185,12 @@ describe('Contract', () => {
 			'0x' + keccak256('SetB(uint256)').toString('hex')]
 		receipt.outputs[0].events.forEach((event, i) => {
 			expect(event.topics[0]).to.eql(topics[i])
-			expect(parseInt(event.data, 16)).to.equal(newVal)
+			expect(parseInt(event.topics[1], 16)).to.equal(newVal)
 		})
 
-		try {
-			const decoded = decodeEvent(receipt.outputs[0].events[1], getABI(abiB, 'SetB', 'event'))
-			expect(parseInt(decoded['_a'])).to.eql(newVal)
-		} catch (err) { assert.fail('decodeEvent: ' + err) }
-
-		try {
-			callOutput = await B.call('get')
-		} catch (err) { assert.fail('contractCall: ' + err) }
+		const decoded = decodeEvent(receipt.outputs[0].events[1], getABI(abiB, 'SetB', 'event'))
+		expect(parseInt(decoded['a'])).to.eql(newVal)
+		callOutput = await B.call('get')
 		expect(parseInt(callOutput.data, 16)).to.equal(newVal)
 	})
 })

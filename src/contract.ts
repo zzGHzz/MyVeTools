@@ -116,8 +116,10 @@ export class Contract {
 	 * @returns clause
 	 */
 	send(fName: string, value: number | string, ...params: any[]): Connex.VM.Clause {
-		const abi = getABI(this.abi, fName, 'function')
-		if (Object.keys(abi).length === 0) { throw errs.abi.NotFound(fName, 'function') }
+		const abi = getABI(this.abi, fName, 'function', params.length)
+		if (Object.keys(abi).length === 0) { 
+			throw errs.abi.NotFound(fName, 'function', params.length) 
+		}
 
 		let stateMutability: string | null = null
 		for (const [k, v] of Object.entries(abi)) {
@@ -184,10 +186,11 @@ export class Contract {
 	 * @dev Get ABI of a function or an event of the contract
 	 * @param name function/event name
 	 * @param type 'function' | 'event'
+	 * @param nParam number of parameters for identifying overloaded function (optional)
 	 * @returns Found ABI
 	 */
-	ABI(name: string, type: 'function' | 'event'): object {
-		const res = getABI(this.abi, name, type)
+	ABI(name: string, type: 'function' | 'event', nParam?:number): object {
+		const res = getABI(this.abi, name, type, nParam)
 
 		if (Object.keys(res).length === 0) {
 			throw errs.contract.ABINotFound()

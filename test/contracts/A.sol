@@ -3,7 +3,7 @@ pragma solidity ^0.7.0;
 
 contract A {
 	uint public a;
-	event SetA(uint _a);
+	event SetA(uint indexed a);
 
 	constructor(uint _a) {
 		a =  _a;

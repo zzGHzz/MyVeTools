@@ -2,7 +2,7 @@ export namespace errs {
 	export function InvalidHex(s: string): TypeError {
 		return new TypeError(`Invalid hex string "${s}"`)
 	}
-	
+
 	export function InvalidAddress(addr: string): TypeError {
 		return new TypeError(`Invalid address "${addr}"`)
 	}
@@ -20,16 +20,20 @@ export namespace errs {
 			return new TypeError(`Contract "${c}" not found`)
 		}
 	}
-	 
+
 	export namespace abi {
-		export function NotFound(name: string, type: 'function' | 'event' | 'constructor'): TypeError {
-			return new TypeError(`ABI for "${type} ${name}" not found`)
+		export function NotFound(name: string, type: 'function' | 'event' | 'constructor', nParam?: number): TypeError {
+			if (typeof nParam === 'undefined') {
+				return new TypeError(`ABI for "${type} ${name}" not found`)
+			} else {
+				return new TypeError(`ABI for "${type} ${name}"[nParam = ${nParam}] not found`)
+			}
 		}
-		
+
 		export function Empty() {
 			return new TypeError('Empty ABI')
 		}
-		
+
 		export function InvalidStateMutability(type: string | null): TypeError {
 			return new TypeError(`Invalid stateMutability "${type}"`)
 		}
@@ -38,16 +42,16 @@ export namespace errs {
 	export namespace contract {
 		export function ABINotSet(): TypeError {
 			return new TypeError('ABI not set')
-		}	
-	
+		}
+
 		export function ConnexNotSet(): TypeError {
 			return new TypeError('Connex not set')
 		}
-		
+
 		export function BytecodeNotSet(): TypeError {
 			return new TypeError('Bytecode not set')
 		}
-		
+
 		export function AddressNotSet(): TypeError {
 			return new TypeError('Address not set')
 		}
