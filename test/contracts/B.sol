@@ -5,7 +5,8 @@ import './A.sol';
 
 contract B {
 	A a;
-	event SetB(uint _a);
+	event SetB(uint indexed _a);
+	event SetB(uint indexed _a, bytes data);
 
 	constructor(uint _a) {
 		a = new A(_a);
@@ -14,6 +15,11 @@ contract B {
 	function set(uint _a) public {
 		a.set(_a);
 		emit SetB(_a);
+	}
+
+	function set(uint _a, bytes memory data) public {
+		a.set(_a);
+		emit SetB(_a, data);
 	}
 
 	function get() public view returns (uint) {

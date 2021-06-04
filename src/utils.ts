@@ -303,20 +303,32 @@ function lPadHex(h: string, hexLen: number): string {
  * @param _name - function/event name
  * @param _type - 'function' | 'event' | 'constructor'
  */
-function getABI(abi: object[], _name: string, _type: 'function' | 'event' | 'constructor'): object {
-	const lname: string = _name.toLowerCase()
+function getABI(
+	abi: object[],
+	name: string,
+	type: 'function' | 'event' | 'constructor',
+	nParam?: number
+): object {
+	const lname: string = name.toLowerCase()
+
 	for (let fabi of abi) {
 		const keys = Object.keys(fabi)
 		const vals = Object.values(fabi)
 
-		const name: string = vals[keys.indexOf('name', 0)]
-		const type: string = vals[keys.indexOf('type', 0)]
+		const n: string = vals[keys.indexOf('name')]
+		const t: string = vals[keys.indexOf('type')]
 
-		if (_type === 'function' || _type === 'event') {
-			if (_type === type && name.toLowerCase() === lname) { return fabi }
+		if (type === 'function' || type === 'event') {
+			if (type === t && n.toLowerCase() === lname) {
+				if(nParam && vals[keys.indexOf('inputs')].length !== nParam) {
+					continue
+				}
+
+				return fabi 
+			}
 		}
 
-		if (_type === 'constructor' && type === 'constructor') { return fabi }
+		if (type === 'constructor' && type === 'constructor') { return fabi }
 	}
 
 	return {}

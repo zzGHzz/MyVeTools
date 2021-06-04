@@ -38,23 +38,53 @@ describe('test utils', function () {
 	})
 	describe('getABI', function () {
 		const abiB = JSON.parse(compileContract(filePath, 'B', 'abi'))
-		it('function', function () {
+		it('Get function ABI without the number of parameters', function () {
 			const actual = getABI(abiB, 'set', 'function')
-			expect(actual).not.eql({})
+
+			const keys = Object.keys(actual)
+			const vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('set')
+			expect(vals[keys.indexOf('type')]).to.eql('function')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(1)
 		})
-		it('non-existing function', function () {
+		it('Get function ABI with the number of parameters', function () {
+			const actual = getABI(abiB, 'set', 'function')
+
+			const keys = Object.keys(actual)
+			const vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('set')
+			expect(vals[keys.indexOf('type')]).to.eql('function')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(1)
+		})
+		it('Test non-existing function', function () {
 			const actual = getABI(abiB, 'NONE', 'function')
 			expect(actual).to.eql({})
 		})
-		it('event', function () {
+		it('Get event ABI without the number of parameters', function () {
 			const actual = getABI(abiB, 'setb', 'event')
-			expect(actual).not.eql({})
+			const keys = Object.keys(actual)
+			const vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('SetB')
+			expect(vals[keys.indexOf('type')]).to.eql('event')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(1)
 		})
-		it('non-existing event', function () {
+		it('Get event ABI with the number of parameters', function () {
+			const actual = getABI(abiB, 'setb', 'event', 2)
+			const keys = Object.keys(actual)
+			const vals = Object.values(actual)
+
+			expect(vals[keys.indexOf('name')]).to.eql('SetB')
+			expect(vals[keys.indexOf('type')]).to.eql('event')
+			expect(vals[keys.indexOf('inputs')].length).to.eql(2)
+		})
+		it('Test non-existing event', function () {
 			const actual = getABI(abiB, 'seta', 'event')
 			expect(actual).to.eql({})
 		})
-		it('constructor', function () {
+		it('Get constructor ABI', function () {
 			const actual = getABI(abiB, '', 'constructor')
 			expect(actual).not.eql({})
 		})
