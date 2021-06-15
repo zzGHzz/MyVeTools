@@ -328,7 +328,7 @@ function getABI(
 			}
 		}
 
-		if (type === 'constructor' && type === 'constructor') { return fabi }
+		if (t === 'constructor' && type === 'constructor') { return fabi }
 	}
 
 	return {}
