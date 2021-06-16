@@ -1,7 +1,6 @@
 import path from 'path'
 import fs from 'fs'
 import crypto from 'crypto'
-import { BN } from 'bn.js'
 import * as solc from '@pzzh/solc'
 import { errs } from './errs'
 
@@ -203,42 +202,6 @@ function getSolcBinRuntime(file: string): string {
 }
 
 /**
- * @dev Convert an integer into a hex string.
- * @param num - integer
- * @param hexLen - output hex string length 
- */
-function numToHexStr(num: number, hexLen?: number): string {
-	const flooredNum = Math.floor(num)
-	let h: string
-
-	if (flooredNum <= Number.MAX_SAFE_INTEGER)
-		h = flooredNum.toString(16)
-	else
-		h = new BN('' + flooredNum).toString(16)
-
-	if (hexLen) {
-		const l = Math.floor(hexLen)
-
-		if (h.length > l) throw new TypeError('Hex length exceeds require length!')
-
-		h += '0'.repeat(l - h.length)
-	}
-
-	return '0x' + h
-}
-
-/**
- * @dev Print a big number in exponential notation.
- * @param num - big number
- * @param prec - precision (int)
- */
-function BNToExpString(num: any, prec: number): string {
-	if (!BN.isBN(num)) { throw new TypeError("Not a big number!") }
-
-	return parseInt(num.toString()).toExponential(prec)
-}
-
-/**
  * @dev Convert a text string into a hex string.
  * @param str - input text string
  * @param hexLen - output hex string length
@@ -320,11 +283,11 @@ function getABI(
 
 		if (type === 'function' || type === 'event') {
 			if (type === t && n.toLowerCase() === lname) {
-				if(typeof nParam !== 'undefined' && vals[keys.indexOf('inputs')].length !== nParam) {
+				if (typeof nParam !== 'undefined' && vals[keys.indexOf('inputs')].length !== nParam) {
 					continue
 				}
 
-				return fabi 
+				return fabi
 			}
 		}
 
@@ -355,8 +318,6 @@ function randBytes(n: number): string {
 }
 
 export {
-	numToHexStr,
-	BNToExpString,
 	strToHexStr,
 	lPadHex,
 	isAddress,
