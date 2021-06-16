@@ -2,12 +2,13 @@
 import { isAddress, isHex, getABI, checkValue } from './utils'
 import { encodeABI } from './connexUtils'
 import { errs } from './errs'
+import { Connex } from '@vechain/connex'
 
 export class Contract {
-	private abi: object[]
-	private bin: string | null
-	private addr: string | null
-	private conn: Connex | null
+	private _abi: object[]
+	private _bin: string | null
+	private _addr: string | null
+	private _conn: Connex | null
 
 	/**
 	 * @dev Constructor
@@ -18,26 +19,26 @@ export class Contract {
 	 */
 	constructor(params: { abi: object[], connex?: Connex, address?: string, bytecode?: string }) {
 		if (Object.keys(params.abi).length === 0) { throw errs.abi.Empty() }
-		this.abi = params.abi
+		this._abi = params.abi
 
 		if (typeof params.address !== 'undefined') {
 			if (!isAddress(params.address)) { throw errs.InvalidAddress(params.address) }
-			this.addr = params.address
+			this._addr = params.address
 		} else {
-			this.addr = null
+			this._addr = null
 		}
 
 		if (typeof params.bytecode !== 'undefined') {
 			if (!isHex(params.bytecode)) { throw errs.InvalidHex(params.bytecode) }
-			this.bin = params.bytecode
+			this._bin = params.bytecode
 		} else {
-			this.bin = null
+			this._bin = null
 		}
 
 		if (typeof params.connex !== 'undefined') {
-			this.conn = params.connex
+			this._conn = params.connex
 		} else {
-			this.conn = null
+			this._conn = null
 		}
 	}
 
@@ -48,7 +49,7 @@ export class Contract {
 	 */
 	at(addr: string): this {
 		if (!isAddress(addr)) { throw errs.InvalidAddress(addr) }
-		this.addr = addr
+		this._addr = addr
 
 		return this
 	}
@@ -60,7 +61,7 @@ export class Contract {
 	 */
 	bytecode(bin: string): this {
 		if (!isHex(bin)) { throw errs.InvalidHex(bin) }
-		this.bin = bin
+		this._bin = bin
 
 		return this
 	}
@@ -71,7 +72,7 @@ export class Contract {
 	 * @returns this
 	 */
 	connex(conn: Connex): this {
-		this.conn = conn
+		this._conn = conn
 		return this
 	}
 
@@ -82,12 +83,12 @@ export class Contract {
 	 * @returns output
 	 */
 	call(fName: string, ...params: any[]): Promise<Connex.VM.Output & Connex.Thor.Account.WithDecoded> {
-		if (this.conn === null) { throw errs.contract.ConnexNotSet() }
-		if (this.addr === null) { throw errs.contract.AddressNotSet() }
+		if (this._conn === null) { throw errs.contract.ConnexNotSet() }
+		if (this._addr === null) { throw errs.contract.AddressNotSet() }
 
-		const abi = getABI(this.abi, fName, 'function', params.length)
-		if (Object.keys(abi).length === 0) { 
-			throw errs.abi.NotFound(fName, 'function', params.length) 
+		const abi = getABI(this._abi, fName, 'function', params.length)
+		if (Object.keys(abi).length === 0) {
+			throw errs.abi.NotFound(fName, 'function', params.length)
 		}
 
 		let stateMutability: string | null = null
@@ -104,7 +105,7 @@ export class Contract {
 		}
 
 		try {
-			return this.conn.thor.account(this.addr).method(abi).call(...params)
+			return this._conn.thor.account(this._addr).method(abi).call(...params)
 		} catch (err) {
 			throw new TypeError(err)
 		}
@@ -118,9 +119,9 @@ export class Contract {
 	 * @returns clause
 	 */
 	send(fName: string, value: number | string, ...params: any[]): Connex.VM.Clause {
-		const abi = getABI(this.abi, fName, 'function', params.length)
-		if (Object.keys(abi).length === 0) { 
-			throw errs.abi.NotFound(fName, 'function', params.length) 
+		const abi = getABI(this._abi, fName, 'function', params.length)
+		if (Object.keys(abi).length === 0) {
+			throw errs.abi.NotFound(fName, 'function', params.length)
 		}
 
 		let stateMutability: string | null = null
@@ -133,7 +134,7 @@ export class Contract {
 			throw errs.abi.InvalidStateMutability(stateMutability)
 		}
 
-		if (this.addr === null) { throw errs.contract.AddressNotSet() }
+		if (this._addr === null) { throw errs.contract.AddressNotSet() }
 
 		const err = checkValue(value)
 		if (err) { throw err }
@@ -147,7 +148,7 @@ export class Contract {
 		}
 
 		return {
-			to: this.addr,
+			to: this._addr,
 			value: value,
 			data: data,
 		}
@@ -160,14 +161,14 @@ export class Contract {
 	 * @returns clause
 	 */
 	deploy(value: string | number, ...params: any[]): Connex.VM.Clause {
-		if (this.bin === null) { throw errs.contract.BytecodeNotSet() }
+		if (this._bin === null) { throw errs.contract.BytecodeNotSet() }
 
 		const err = checkValue(value)
 		if (err) { throw err }
 		value = typeof value === 'string' ? value : Math.floor(value)
 
-		let data = this.bin
-		let abi = getABI(this.abi, '', 'constructor')
+		let data = this._bin
+		let abi = getABI(this._abi, '', 'constructor')
 		if (Object.keys(abi).length === 0) {
 			abi = JSON.parse('{"inputs":[],"stateMutability":"nonpayable","type":"constructor"}')
 		}
@@ -191,13 +192,37 @@ export class Contract {
 	 * @param nParam number of parameters for identifying overloaded function (optional)
 	 * @returns Found ABI
 	 */
-	ABI(name: string, type: 'function' | 'event', nParam?:number): object {
-		const res = getABI(this.abi, name, type, nParam)
+	ABI(name: string, type: 'function' | 'event', nParam?: number): object {
+		const res = getABI(this._abi, name, type, nParam)
 
 		if (Object.keys(res).length === 0) {
 			throw errs.contract.ABINotFound()
 		}
-		
+
 		return res
+	}
+
+	/**
+	 * @dev Get the deployed contract address
+	 */
+	get address(): string {
+		if (this._addr === null) {
+			throw errs.contract.AddressNotSet
+		}
+		return this._addr
+	}
+
+	/**
+	 * @dev Get the VET/VTHO balance of the deployed contract
+	 */
+	getBalance(): Promise<Connex.Thor.Account> {
+		if(this._conn === null ) {
+			throw errs.contract.ConnexNotSet
+		}
+		if(this._addr === null) {
+			throw errs.contract.AddressNotSet
+		} 
+
+		return this._conn.thor.account(this._addr).get()
 	}
 }
