@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
 import './A.sol';
 
@@ -39,4 +39,6 @@ contract C {
 	function helloWorld() public pure returns(string memory) {
 		return "hello world";
 	}
+
+	receive() external payable {}
 }
