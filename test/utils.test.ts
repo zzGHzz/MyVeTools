@@ -36,6 +36,29 @@ describe('test utils', function () {
 			expect(wrapper).to.throw(TypeError, errs.solc.ContractNotFound('NONE').message)
 		})
 	})
+
+	describe('compileContract for import lib', function () {
+
+		const filePath = path.resolve(process.cwd(), './test/contracts/subcontracts/D.sol')
+		const libDirs = [path.resolve(process.cwd(), './test/contracts/')]
+
+		const expected = JSON.parse(compileContract(filePath,undefined,undefined,libDirs))
+		const file = 'D.sol'
+		const contractName = 'D'
+		it('abi', function () {
+			const actual = JSON.parse(compileContract(filePath, contractName, 'abi',libDirs))
+			expect(actual).to.eql(expected['contracts'][file][contractName]['abi'])
+		})
+		it('bytecode', function () {
+			const actual = compileContract(filePath, contractName, 'bytecode',libDirs)
+			expect(actual).to.eql('0x' + expected['contracts'][file][contractName]['evm']['bytecode']['object'])
+		})
+		it('deployedBytecode', function () {
+			const actual = compileContract(filePath, contractName, 'deployedBytecode',libDirs)
+			expect(actual).to.eql('0x' + expected['contracts'][file][contractName]['evm']['deployedBytecode']['object'])
+		})
+	})
+
 	describe('getABI', function () {
 		const abiB = JSON.parse(compileContract(filePath, 'B', 'abi'))
 		it('Get function ABI without the number of parameters', function () {

@@ -15,7 +15,7 @@
 	},
 	"homepage": "https://github.com/zzGHzz/MyVeTools#readme",
 	"dependencies": {
-		"@pzzh/solc": "^1.1.2",
+		"@pzzh/solc": "^1.2.1",
 		"@vechain/connex": "^2.0.0",
 		"thor-devkit": "^2.0.1"
 	},

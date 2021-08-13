@@ -9,11 +9,13 @@ import { errs } from './errs'
  * @param filePath absolute path of the solidity file
  * @param contractName target contract name
  * @param opt options: abi | bytecode | deployedBytecode
+ * @param libDirs  add contract library directories
  */
 function compileContract(
 	filePath: string,
 	contractName?: string,
-	opt?: 'abi' | 'bytecode' | 'deployedBytecode'
+	opt?: 'abi' | 'bytecode' | 'deployedBytecode',
+	libDirs?:string[]
 ): string {
 	if (!fs.existsSync(filePath)) {
 		throw errs.FileNotFound(filePath)
@@ -72,7 +74,20 @@ function compileContract(
 					return {
 						contents: fs.readFileSync(abspath, 'utf8')
 					}
-				} else {
+				} else if(libDirs && libDirs.length > 0){
+					for(const dir of libDirs){
+						const importpath = path.resolve(dir,file);
+						if(fs.existsSync(importpath)){
+							return {
+								contents: fs.readFileSync(importpath, 'utf8')
+							}
+						}
+					}
+					return {
+						error: `File ${filePath} not found`
+					}
+				} 
+				else {
 					return {
 						error: `File ${filePath} not found`
 					}
