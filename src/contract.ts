@@ -106,7 +106,7 @@ export class Contract {
 
 		try {
 			return this._conn.thor.account(this._addr).method(abi).call(...params)
-		} catch (err) {
+		} catch (err: any) {
 			throw new TypeError(err)
 		}
 	}
@@ -143,7 +143,7 @@ export class Contract {
 		let data: string
 		try {
 			data = encodeABI(abi, ...params)
-		} catch (err) {
+		} catch (err: any) {
 			throw new TypeError(err)
 		}
 
@@ -174,7 +174,7 @@ export class Contract {
 		}
 		try {
 			data = data + encodeABI(abi, ...params).slice(10)
-		} catch (err) {
+		} catch (err: any) {
 			throw new TypeError(err)
 		}
 
